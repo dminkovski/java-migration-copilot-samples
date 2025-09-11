@@ -1,0 +1,84 @@
+{
+  "name": "Java Spring Boot with App Modernization",
+  "image": "mcr.microsoft.com/devcontainers/java:1-21-bullseye",
+  
+  // Features to add to the dev container
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/azure-cli:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+
+  // Configure tool-specific properties
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        // Java Development Extensions
+        "vscjava.vscode-java-pack",
+        // GitHub Copilot Extensions
+        "github.copilot",
+        "github.copilot-chat",
+        
+        // GitHub Copilot App Modernization for Java
+        "vscjava.migrate-java-to-azure",
+      ],
+      "settings": {
+//        "java.jdt.ls.java.home": "/usr/local/sdkman/candidates/java/current/bin",
+        "java.configuration.runtimes": [
+          /*{
+            "name": "JavaSE-1.8",
+            "path": "/usr/local/sdkman/candidates/java/8.0.422-amzn"
+          },
+          {
+            "name": "JavaSE-11",
+            "path": "/usr/local/sdkman/candidates/java/11.0.24-amzn"
+          },
+          {
+            "name": "JavaSE-17",
+            "path": "/usr/local/sdkman/candidates/java/17.0.12-amzn"
+          },*/
+          {
+            "name": "JavaSE-21",
+            "path": "/usr/local/sdkman/candidates/java/21.0.4-amzn"
+          }
+        ],
+        "java.compile.nullAnalysis.mode": "automatic",
+        "spring-boot.ls.checkUpdate": false,
+        "files.exclude": {
+          "**/.classpath": true,
+          "**/.project": true,
+          "**/.settings": true,
+          "**/.factorypath": true
+        }
+      }
+    }
+  },
+
+  // Ports to forward
+  "forwardPorts": [8080, 3000, 5005],
+  "portsAttributes": {
+    "8080": {
+      "label": "Spring Boot Application",
+      "onAutoForward": "notify"
+    },
+    "5005": {
+      "label": "Java Debug Port",
+      "onAutoForward": "silent"
+    }
+  },
+
+  // Use 'postCreateCommand' to run commands after the container is created
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+
+  // Mount the local file system and docker socket
+  "mounts": [
+    "source=/var/run/docker.sock,target=/var/run/docker-host.sock,type=bind"
+  ],
+
+  // Set container user
+  "containerUser": "root",
+  "remoteUser": "root",
+
+  // Enable privileged mode for docker-in-docker
+  "privileged": true
+}
