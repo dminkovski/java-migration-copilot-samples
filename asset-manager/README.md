@@ -241,7 +241,7 @@ The first step is to assess the sample Java application `asset-manager`. The ass
 
 7. It will start the assessment after all prechecks and install have been completed.
 
-    ![Run Assessment](doc-media/5.ghcp-run-assessment.png)
+    ![Run Assessment](doc-media/5.0.ghcp-run-assessment.png)
 
     > **NOTE**: You can click on the arrow dropdown next to **Running appmod-run-asessment* to view the params that are sent to the MCP server.
     ![MCP Details Input](doc-media/5.1ghcp-assessment-details-mcp-input.png)
@@ -250,61 +250,71 @@ The first step is to assess the sample Java application `asset-manager`. The ass
     ![Assessment Report](doc-media/6.appmod-assessment-report.png)
 
 9. Review the **Summary** report. Take a look at the **Cloud Readiness** report under the **Issues** tab to view the proposed solutions for the issues identified in the summary report.
-10. For this workshop, we will start with the **Database Migration**. Select **Migrate to Azure Database for PostgreSQL (SDK on Public Cloud)** in the Solution report, then select **Confirm Solution**.
 
-   ![Database Migration](doc-media/7.appmod-db-migration.png)
+## Migrate to Azure Database for PostgreSQL Flexible Server
 
-11. Right next to the Dropdown, click **Migrate**.
-12. You should see GitHub Copilot run `#appmod-run-task by kbId: managed-identity-azure-sdk-public-cloud/mi-postgresql-azure-sdk-public-cloud`
+1. For this workshop, we will start with the **Database Migration**. 
+Select **Migrate to Azure Database for PostgreSQL (SDK on Public Cloud)** in the Solution report dropdown on the right.
+
+   ![Database Migration](doc-media/7.0.appmod-db-migration.png)
+
+1. Right next to the Dropdown, click **Migrate**.
+1. After clicking the Migrate button in the Solution Report, Copilot chat window will be opened with Agent Mode.
+1. You should see GitHub Copilot run `#appmod-run-task by kbId: managed-identity-azure-sdk-public-cloud/mi-postgresql-azure-sdk-public-cloud`
 
     ![GHCP Database Migration](doc-media/7.1.ghcp-db-migration.png)
 
-13. GHCP will continue to run `appmod-run-task`, `appmod-fetch-knowledgebase`,`appmod-search-file` and other tasks using the MCP Server. During each step, please manually click **Continue** to allow, confirm and proceed.
-14. Wait for the tasks to complete and a **progress overview** will show up as well as a **migration plan** inside GitHub Copilot Chat. Durch each step, please manually input or click "confirm" or "continue" to confirm and proceed.
-
-      ![GHCP Database Migration Progress](doc-media/7.2appmod-progress.png)
+1. GHCP will continue to run `appmod-run-task`, `appmod-fetch-knowledgebase`,`appmod-search-file` and other tasks using the MCP Server. During each step, please manually click **Continue** repeatedly to allow, confirm and proceed. The Copilot Agent uses various tools to facilitate application modernization. Each tool's usage requires confirmation by clicking the `Continue` button.
+1. Wait for the tasks to complete and a **progress overview** will show up as well as a **migration plan** inside GitHub Copilot Chat. Durch each step, please manually input or click "confirm" or "continue" to confirm and proceed. You can find these files under `.github/appmod-java/code-migration/managed-identity-azure-sdk-public-cloud/progress.md`.
 
 
+      ![GHCP Database Migration Progress](doc-media/7.2.appmod-progress.png)
 
-### Migrate to Azure Database for PostgreSQL Flexible Server using Predefined Formula
-
-1. After clicking the Migrate button in the Solution Report, Copilot chat window will be opened with Agent Mode.
-1. In Copilot chat window, click **Continue** repeatedly to confirm each tool action. The Copilot Agent uses various tools to facilitate application modernization. Each tool's usage requires confirmation by clicking the `Continue` button.
-1. After each step, please manually input "Continue" to confirm and proceed.
 1. Click **Continue** to confirm to run **Java Application Build-Fix** tool. This tool will attempt to resolve any build errors, in up to 10 iterations.
 1. After the Build-Fix tool begins, click **Continue** to proceed and show progress and migration summary.
 1. Review the proposed code changes and click **Keep** to apply them.
 
-### Migrate to Azure Blob Storage and Azure Service Bus using Custom Formula
+      ![Database Migration Code Update 1](doc-media/7.3.appmod-db-code-update-1.png)
+      
+      ![Database Migration Code Update 2](doc-media/7.4.appmod-db-code-update-2.png)
+1. GHCP will continue to run `appmod-consistency-validation`. **Continue** and **Confirm** until it runs `appmod-create-migration-summary`.
+1. Once GitHub Copilot provides oyu with next recommended actions after the **Summary** has been generated, this part of the lab is concluded.
+1. Take a look at the **summary.md** file to review the changes. `.github/appmod-java/code-migration/managed-identity-azure-sdk-public-cloud/mi-postgresql-azure-sdk-public-cloud/summary.md`
 
-The Application `asset-manager` used AWS S3 for image storage and Spring AMQP with RabbitMQ for message queuing. We have already migrated the code of **Web** module to use Azure Blob Storage and Azure Service Bus. These changes are recorded in two separate commits in the `main` branch.
+## Migrate from AWS S3 to Azure Blob Storage
 
-The following steps demonstrate how to generate custom formulas based on those existing commits. Then, you can migrate **Worker** module to use Azure Blob Storage and Azure Service Bus as well, using the created custom formulas.
+The Application `asset-manager` uses AWS S3 for image storage. Let's move to Azure Blob Storage instead.
 
-1. Open the sidebar of `App Modernization for Java`. Hover the mouse over the **Formulas** section.  Select **Create formula from source control**. This icon looks like two circles with arrows pointing to the other circle.
-   ![Create Formula From Source Control](doc-media/create-formula-from-source-control.png)
-1. Type **migrate web** to search for the commits that migrated the **Web** module, and you should see two commits listed:
-   * migrate web RabbitMQ to azure service bus
-   * migrate web s3 to azure blob storage
-   
-   ![Migration Commits](doc-media/migration-commits.png)
-1. You will create two custom formulas based on the two commits. First, create the formula for migrating RabbitMQ. Select the commit of **migrate web RabbitMQ to azure service bus**, click OK.
-1. Click **Create New** to create a new custom formula.
-1. Default formula name will be generated. Give it a new name: "custom formula migrate RabbitMQ". Press `Enter` to confirm. Then, formula description, and search patterns will be generated in order. Press `Enter` repeatedly to confirm.
-1. Now, the custom formula for migrating RabbitMQ is generated and shows in the section of formulas in of `App Modernization for Java` blade.
-   ![Custom Formula of Migrating Rabbitmq](doc-media/custom-formula-RabbitMQ.png)
-1. Create another custom formula for migrating S3. Follow the same steps you just did, select the commit **migrate web s3 to azure blob storage** to create a new custom formula with name: "custom formula migrate s3".
-1. Now, the two custom formulas are ready.
-   
-   ![Custom Formulas](doc-media/custom-formulas.png)
-1. Select and run the two custom formulas one by one you created in the formulas section of `App Modernization for Java`, one at a time.
-   ![Run Formula](doc-media/run-formula.png)
-1. Follow the same steps as the predefined formula to review and apply the changes, and run the Java Application Build-Fix tool to apply build fixes.
+1. Open the Assessment Report. You can always find it by opening the GitHub Copilot App Modernization for Java Extension and look under Assessment.
+1. For this part of the workshop, we will take a look at the **Storage Migration**. 
+We will **Migrate from AWS S3 to Azure Blob Storage**.
+
+      ![Storage Migration](doc-media/8.0.appmod-storage-migration.png)
+1. Click **Migrate**.
+1. GitHub Copilot runs `#appmod-run-task by kbId: s3-to-azure-blob-storage`
+1. GHCP will continue to run `appmod-run-task`, `appmod-fetch-knowledgebase`,`appmod-search-file` and other tasks using the MCP Server. During each step, please manually click **Continue** repeatedly to allow, confirm and proceed. The Copilot Agent uses various tools to facilitate application modernization. Each tool's usage requires confirmation by clicking the `Continue` button.
+1. Review the proposed code changes and click **Keep** to apply them.
+
+   ![Storage Migration Code Update](doc-media/8.1.appmod-storage-code-update-1.png)
+
+## Migrate from AMQP RabbitMQ to Azure Service Bus
+The Application `asset-manager` uses Spring AMQP with RabbitMQ for message queuing.  Let's move to Azure Service Bus instead.
+
+1. For this part of the workshop, we will take a look at the **Messaging Service Migration**. 
+We will **Migrate from AMQP RabbitMQ to Azure Service Bus**.
+
+      ![Storage Migration](doc-media/9.0.appmod-ms-migration.png)
+1. Click **Migrate**.
+1. GitHub Copilot runs `#appmod-run-task by kbId: amqp-rabbitmq-servicebus`
+1. GHCP will continue to run `appmod-run-task`, `appmod-fetch-knowledgebase`,`appmod-search-file` and other tasks using the MCP Server. During each step, please manually click **Continue** repeatedly to allow, confirm and proceed. The Copilot Agent uses various tools to facilitate application modernization. Each tool's usage requires confirmation by clicking the `Continue` button.
 1. Review the proposed code changes and click **Keep** to apply them.
 
 ## Deploy to Azure
+At this point, you have successfully migrated the sample Java application `asset-manager` to Migrate to Azure Database for PostgreSQL (SDK on Public Cloud), Azure Blob Storage, and Azure Service Bus. 
 
-At this point, you have successfully migrated the sample Java application `asset-manager` to Migrate to Azure Database for PostgreSQL (SDK on Public Cloud), Azure Blob Storage, and Azure Service Bus. Now, you can deploy the migrated application to Azure using the Azure CLI after you identify a working location for your Azure resources.
+> The Lab is over.
+
+Now you are free to can deploy the migrated application to Azure using the Azure CLI after you identify a working location for your Azure resources.
 
 For example, an Azure Database for PostgreSQL Flexible Server requires a location that supports the service. Follow the instructions below to find a suitable location.
 
@@ -367,3 +377,9 @@ scripts/cleanup-azure-resources.sh -ResourceGroupName <your resource group name>
 ```
 
 If you deploy the app using GitHub Codespaces, delete the Codespaces environment by navigating to your forked repository in GitHub and selecting **Code** > **Codespaces** > **Delete**.
+
+
+# Trouble Shooting
+
+## GHCP seems to be doing something weird
+Go and take a look at `.github/appmod-java/code-migration/managed-identity-azure-sdk-public-cloud/progress.md` and `.github/appmod-java/code-migration/managed-identity-azure-sdk-public-cloud/plan.md`. You will find the **Migration Session ID** in `plan.md` which you can always use to refer to the current migration plan. 
