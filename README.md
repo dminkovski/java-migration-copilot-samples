@@ -1,39 +1,53 @@
-# Workshop: migrate this project to Azure
+# Tech Summit FY26 Lab: GitHub Copilot App Modernization for Java - Migrate to Azure
+A short lab that walks through assessing and migrating the sample Java application "asset-manager" from AWS/RabbitMQ/Postgres to Azure Blob Storage, Azure Service Bus, and Azure Database for PostgreSQL using GitHub Copilot App Modernization for Java.
 
-- [Workshop: migrate this project to Azure](#workshop-migrate-this-project-to-azure)
-  - [About this Project](#about-this-project)
+- [Tech Summit FY26 Lab: GitHub Copilot App Modernization for Java - Migrate to Azure](#tech-summit-fy26-lab-github-copilot-app-modernization-for-java---migrate-to-azure)
+  - [Overview](#overview)
+  - [Audience \& Objectives](#audience--objectives)
+  - [Estimated time \& difficulty](#estimated-time--difficulty)
+  - [About the Project](#about-the-project)
     - [Original Infrastructure](#original-infrastructure)
     - [Original Architecture](#original-architecture)
     - [Migrated Infrastructure](#migrated-infrastructure)
     - [Migrated Architecture](#migrated-architecture)
   - [Prerequisites](#prerequisites)
-  - [Install GitHub Copilot App Modernization for Java (Preview)](#install-github-copilot-app-modernization-for-java-preview)
-  - [Migrate the Sample Java Application](#migrate-the-sample-java-application)
+  - [Lab: Migrate the Sample Java Application](#lab-migrate-the-sample-java-application)
     - [Assess Your Java Application](#assess-your-java-application)
-    - [Migrate to Azure Database for PostgreSQL Flexible Server using Predefined Formula](#migrate-to-azure-database-for-postgresql-flexible-server-using-predefined-formula)
-    - [Migrate to Azure Blob Storage and Azure Service Bus using Custom Formula](#migrate-to-azure-blob-storage-and-azure-service-bus-using-custom-formula)
-  - [Deploy to Azure](#deploy-to-azure)
-  - [Clean up](#clean-up)
+    - [Migrate to Azure Database for PostgreSQL Flexible Server](#migrate-to-azure-database-for-postgresql-flexible-server)
+    - [Migrate from AWS S3 to Azure Blob Storage](#migrate-from-aws-s3-to-azure-blob-storage)
+    - [Migrate from AMQP RabbitMQ to Azure Service Bus](#migrate-from-amqp-rabbitmq-to-azure-service-bus)
+    - [Completion](#completion)
+    - [Manual Verification \& Checkpoints:](#manual-verification--checkpoints)
+    - [Trouble Shooting](#trouble-shooting)
+      - [GHCP seems to be doing something unclear](#ghcp-seems-to-be-doing-something-unclear)
+  - [References \& resources](#references--resources)
 
-> [!IMPORTANT]
-> `GitHub Copilot App Modernization for Java` is in preview and is subject to change before becoming generally available.
 
-GitHub Copilot App Modernization for Java (Preview), also referred to as `App Modernization for Java`, assists with app assessment, planning and code remediation. It automates repetitive tasks, boosting developer confidence and speeding up the Azure migration and ongoing optimization.
+## Overview
+This hands-on lab demonstrates assessing and migrating a Java web + worker application to Azure using GitHub Copilot App Modernization for Java. The lab is organized as small focused tasks with verification points after each major step.
 
-In this workshop, you learn how to use GitHub Copilot App Modernization for Java (Preview) to assess and migrate a sample Java application `asset-manager` to Azure.
+GitHub Copilot App Modernization for Java, also referred to as `App Modernization for Java` or `AppMod`, assists with app assessment, planning and code remediation using a Visual Studio Code Extension and GitHub Copilot. 
+It automates repetitive tasks, boosting developer confidence and speeding up the Azure migration and ongoing optimization.
 
-## About this Project
 
-This application consists of two sub-modules, **Web** and **Worker**.  Both of them contain functions of using storage service and message queue. To demonstrate the migration process, this GitHub repository is mainly composed of 3 different branches:
+## Audience & Objectives
+- Audience: Cloud Solution Architects & Solution Engineers performing Java Cloud Migrations & Modernization.
+- Learning objectives:
+  - Run an automated assessment for cloud readiness.
+  - Apply Copilot-generated migrations for DB, storage, and messaging.
+  - Verify migrated code locally.
+  
+## Estimated time & difficulty
+- Estimated time: 60–90 minutes
+- Difficulty: Intermediate (familiarity with Java, Maven, VS Code, and Azure CLI recommended)
 
-- [`source`](https://github.com/Azure-Samples/java-migration-copilot-samples/tree/source/asset-manager) branch: The original project before being migrated to Azure service.
-- [`main`](https://github.com/Azure-Samples/java-migration-copilot-samples/tree/main/asset-manager) branch: Only the `web` module is migrated to use Azure service. This branch will be used for the workshop.
-- [`expected`](https://github.com/Azure-Samples/java-migration-copilot-samples/tree/expected/asset-manager) branch: The is the final migrated state, and both `web` and `worker` modules are migrated to Azure.
+## About the Project
+
+This application consists of two sub-modules, **Web** and **Worker**.  Both of them contain functions of using storage service and message queue.
 
 ### Original Infrastructure
 
-The project uses the following infrastructure, in [`source`](https://github.com/Azure-Samples/java-migration-copilot-samples/tree/source/asset-manager) branch:
-
+The project uses the following original infrastructure:
 * AWS S3 for image storage, using password-based authentication (access key/secret key)
 * RabbitMQ for message queuing, using password-based authentication
 * PostgreSQL database for metadata storage, using password-based authentication
@@ -193,27 +207,14 @@ To successfully complete this workshop, you need the following:
 - [VSCode](https://code.visualstudio.com/): The latest version is recommended.
 - [A Github account with Github Copilot enabled](https://github.com/features/copilot): All plans are supported, including the Free plan.
 - [GitHub Copilot extension in VSCode](https://code.visualstudio.com/docs/copilot/overview): The latest version is recommended.
+- [GitHub Copilot app modernization for Java Extension](https://marketplace.visualstudio.com/items?itemName=vscjava.migrate-java-to-azure): The extension needed for migration
 - [AppCAT](https://aka.ms/appcat-install): Required for the app assessment feature.
 - [JDK 21](https://learn.microsoft.com/en-us/java/openjdk/download#openjdk-21): Required for the code remediation feature and running the initial application locally.
 - [Maven 3.9.9](https://maven.apache.org/install.html): Required for the assessment and code remediation feature.
-- [Azure subscription](https://azure.microsoft.com/free/): Required to deploy the migrated application to Azure.
-- [Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli): Required if you deploy the migrated application to Azure locally. The latest version is recommended.
-- Fork the [GitHub repository](https://github.com/Azure-Samples/java-migration-copilot-samples) that contains the sample Java application. Please ensure to **uncheck** the default selection "Copy the `main` branch only". Clone it to your local machine. Open the `asset-manager` folder in VSCode and checkout the `main` branch.
+- [Azure subscription](https://azure.microsoft.com/free/): Required if you want to deploy the migrated application to Azure.
+- [Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli): Required if you want to deploy the migrated application to Azure locally. The latest version is recommended.
 
-## Install GitHub Copilot App Modernization for Java (Preview)
-
-In VSCode, open the Extensions view from Activity Bar, search `GitHub Copilot App Modernization for Java` extension in marketplace. Select the Install button on the extension. After installation completes, you should see a notification in the bottom-right corner of VSCode confirming success.
-
-In VSCode, configure runtime arguments to enable the proposed API:
-```json
-  "enable-proposed-api": ["Microsoft.migrate-java-to-azure"],
-```
-1. Press **Ctrl+Shift+P** and select **Preferences: Configure Runtime Arguments**.
-2. Add the above JSON snippet into the editor and save.
-3. Restart VSCode.
-
-
-## Migrate the Sample Java Application
+## Lab: Migrate the Sample Java Application
 
 The following sections guide you through the process of migrating the sample Java application `asset-manager` to Azure using GitHub Copilot App Modernization for Java (Preview).
 
@@ -222,7 +223,7 @@ The following sections guide you through the process of migrating the sample Jav
 The first step is to assess the sample Java application `asset-manager`. The assessment provides insights into the application's readiness for migration to Azure.
 
 1. Open the VS code with all the prerequisites installed on the asset manager by changing the directory to the `asset-manager` directory and running `code .` in that directory.
-2. Open the extension `App Modernization for Java`.
+2. Open the extension `GitHub Copilot App Modernization for Java`.
 3. Hover the mouse over the **Assessment** section and click **Assess** button which looks like a triangle pointing right. Then, the Github Copilot Chat window will be opened and propose to run Modernization Assessor. Please confirm the tool usage by clicking **Continue**.
    
    ![Trigger Assessment](doc-media/1.trigger-assessment.png)
@@ -251,7 +252,7 @@ The first step is to assess the sample Java application `asset-manager`. The ass
 
 9. Review the **Summary** report. Take a look at the **Cloud Readiness** report under the **Issues** tab to view the proposed solutions for the issues identified in the summary report.
 
-## Migrate to Azure Database for PostgreSQL Flexible Server
+### Migrate to Azure Database for PostgreSQL Flexible Server
 
 1. For this workshop, we will start with the **Database Migration**. 
 Select **Migrate to Azure Database for PostgreSQL (SDK on Public Cloud)** in the Solution report dropdown on the right.
@@ -281,7 +282,7 @@ Select **Migrate to Azure Database for PostgreSQL (SDK on Public Cloud)** in the
 1. Once GitHub Copilot provides oyu with next recommended actions after the **Summary** has been generated, this part of the lab is concluded.
 1. Take a look at the **summary.md** file to review the changes. `.github/appmod-java/code-migration/managed-identity-azure-sdk-public-cloud/mi-postgresql-azure-sdk-public-cloud/summary.md`
 
-## Migrate from AWS S3 to Azure Blob Storage
+### Migrate from AWS S3 to Azure Blob Storage
 
 The Application `asset-manager` uses AWS S3 for image storage. Let's move to Azure Blob Storage instead.
 
@@ -297,7 +298,7 @@ We will **Migrate from AWS S3 to Azure Blob Storage**.
 
    ![Storage Migration Code Update](doc-media/8.1.appmod-storage-code-update-1.png)
 
-## Migrate from AMQP RabbitMQ to Azure Service Bus
+### Migrate from AMQP RabbitMQ to Azure Service Bus
 The Application `asset-manager` uses Spring AMQP with RabbitMQ for message queuing.  Let's move to Azure Service Bus instead.
 
 1. For this part of the workshop, we will take a look at the **Messaging Service Migration**. 
@@ -309,77 +310,43 @@ We will **Migrate from AMQP RabbitMQ to Azure Service Bus**.
 1. GHCP will continue to run `appmod-run-task`, `appmod-fetch-knowledgebase`,`appmod-search-file` and other tasks using the MCP Server. During each step, please manually click **Continue** repeatedly to allow, confirm and proceed. The Copilot Agent uses various tools to facilitate application modernization. Each tool's usage requires confirmation by clicking the `Continue` button.
 1. Review the proposed code changes and click **Keep** to apply them.
 
-## Deploy to Azure
-At this point, you have successfully migrated the sample Java application `asset-manager` to Migrate to Azure Database for PostgreSQL (SDK on Public Cloud), Azure Blob Storage, and Azure Service Bus. 
+### Completion
 
-> The Lab is over.
+Congratulations — you completed the lab!
 
-Now you are free to can deploy the migrated application to Azure using the Azure CLI after you identify a working location for your Azure resources.
+- You ran an automated assessment and applied Copilot-generated migrations for database, storage, and messaging.
+- You reviewed and accepted the generated code changes and migration summary.
 
-For example, an Azure Database for PostgreSQL Flexible Server requires a location that supports the service. Follow the instructions below to find a suitable location.
+**Next steps**
+- You are free to deploy the migrated application to Azure using the provided deployment scripts in the [main repo](https://github.com/Azure-Samples/java-migration-copilot-samples/tree/main/asset-manager/scripts):
+ (`scripts\deploy-to-azure.cmd` or `scripts/deploy-to-azure.sh`).
+- Explore the `expected` branch to compare the final migrated state and learn from the changes.
+- When finished, run the cleanup script to remove Azure resources (`scripts\cleanup-azure-resources.cmd` or `scripts/cleanup-azure-resources.sh`).
 
-1. Run the following command to list all available locations for the current subscription.
+**Resources**
+- Review `.github/appmod-java/.../summary.md` and `plan.md` for migration details.
+- See the References & resources section above for SDK and CLI documentation.
 
-   ```bash
-   az account list-locations -o table
-   ```
+**Well done!**
+We hope this lab improved your confidence with App Modernization for Java and Azure migrations.
 
-1. Select a location from column **Name** in the output.
+### Manual Verification & Checkpoints:
+After each major step you can run for build checks:
+`
+mvn -f web/ clean package
+mvn -f worker/ clean package
+`
 
-1. Run the following command to list all available SKUs in the selected location for Azure Database for PostgreSQL Flexible Server:
+### Trouble Shooting
 
-   ```bash
-   az postgres flexible-server list-skus --location <your location> -o table
-   ```
+#### GHCP seems to be doing something unclear
+Go and take a look at `.github/appmod-java/code-migration/managed-identity-azure-sdk-public-cloud/progress.md` and `.github/appmod-java/code-migration/managed-identity-azure-sdk-public-cloud/plan.md`. 
+You will find the **Migration Session ID** in `plan.md` which you can always use to refer to the current migration plan. 
 
-1. If you see the output contains the SKU `Standard_B1ms` and the **Tier** is `Burstable`, you can use the location for the deployment. Otherwise, try another location.
+## References & resources
+- [GitHub Copilot App Modernization for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.migrate-java-to-azure)
+- [Azure CLI docs](https://learn.microsoft.com/cli/azure/)
+- [Azure Database for PostgreSQL](https://learn.microsoft.com/en-us/azure/postgresql/)
+- [Azure Blob Storage SDK for Java](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-java-get-started?tabs=azure-ad)
+- [Azure Service Bus SDK for Java](https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-java-how-to-use-queues?tabs=passwordless)
 
-   ```text
-   SKU                Tier             VCore    Memory    Max Disk IOPS
-   -----------------  ---------------  -------  --------  ---------------
-   Standard_B1ms      Burstable        1        2 GiB     640e
-   ```
-
-You can either run the deployment script locally or use the GitHub Codespaces. The recommended approach is to run the deployment script in the GitHub Codespaces, as it provides a ready-to-use environment with all the necessary dependencies.
-
-Deploy using GitHub Codespaces:
-1. Commit and push the changes to your forked repository.
-1. Follow instructions in [Use GitHub Codespaces for Deployment](README.md#use-github-codespaces-for-deployment) to deploy the app to Azure.
-
-Deploy using local environment by running the deployment script in the terminal:
-1. Run `az login` to sign in to Azure.
-1. Run the following commands to deploy the app to Azure:
-
-   Windows:
-   ```batch
-   scripts\deploy-to-azure.cmd -ResourceGroupName <your resource group name> -Location <your resource group location, e.g., eastus2> -Prefix <your unique resource prefix>
-   ```
-
-   Linux:
-   ```bash
-   scripts/deploy-to-azure.sh -ResourceGroupName <your resource group name> -Location <your resource group location, e.g., eastus2> -Prefix <your unique resource prefix>
-   ```
-
-Once the deployment script completes successfully, it outputs the URL of the Web application. Open the URL in a browser to verify if the application is running as expected.
-
-## Clean up
-
-When no longer needed,  you can delete all related resources using the following scripts.
-
-Windows:
-```batch
-scripts\cleanup-azure-resources.cmd -ResourceGroupName <your resource group name>
-```
-
-Linux:
-```bash
-scripts/cleanup-azure-resources.sh -ResourceGroupName <your resource group name>
-```
-
-If you deploy the app using GitHub Codespaces, delete the Codespaces environment by navigating to your forked repository in GitHub and selecting **Code** > **Codespaces** > **Delete**.
-
-
-# Trouble Shooting
-
-## GHCP seems to be doing something weird
-Go and take a look at `.github/appmod-java/code-migration/managed-identity-azure-sdk-public-cloud/progress.md` and `.github/appmod-java/code-migration/managed-identity-azure-sdk-public-cloud/plan.md`. You will find the **Migration Session ID** in `plan.md` which you can always use to refer to the current migration plan. 
