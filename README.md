@@ -216,7 +216,7 @@ To successfully complete this workshop, you need the following:
 
 ## Lab: Migrate the Sample Java Application
 
-The following sections guide you through the process of migrating the sample Java application `asset-manager` to Azure using GitHub Copilot App Modernization for Java (Preview).
+The following sections guide you through the process of migrating the sample Java application `asset-manager` to Azure using GitHub Copilot App Modernization for Java.
 
 ### Assess Your Java Application
 
