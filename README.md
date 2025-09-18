@@ -216,13 +216,14 @@ To successfully complete this workshop, you need the following:
 
 ## Lab: Migrate the Sample Java Application
 
-The following sections guide you through the process of migrating the sample Java application `asset-manager` to Azure using GitHub Copilot App Modernization for Java.
+The following sections guide you through the process of migrating the sample Java application called `asset-manager` to Azure using GitHub Copilot App Modernization for Java.
 
 ### Assess Your Java Application
 
-The first step is to assess the sample Java application `asset-manager`. The assessment provides insights into the application's readiness for migration to Azure.
+The first step is to assess the sample Java application called `asset-manager`. 
+The assessment provides insights into the application's readiness for migration to Azure.
 
-1. Open the VS code with all the prerequisites installed on the asset manager by changing the directory to the `asset-manager` directory and running `code .` in that directory.
+1. Open the VS code with all the prerequisites installed. Then open the project by running `code .` in the project directory or open the project inside VS Code.
 2. Open the extension `GitHub Copilot App Modernization for Java`.
 3. Hover the mouse over the **Assessment** section and click **Assess** button which looks like a triangle pointing right. Then, the Github Copilot Chat window will be opened and propose to run Modernization Assessor. Please confirm the tool usage by clicking **Continue**.
    
@@ -236,21 +237,21 @@ The first step is to assess the sample Java application `asset-manager`. The ass
    ![Precheck Assessment](doc-media/2.ghcp-precheck-assessment.png)
   > **NOTE**: AppCAT should be installed already using the devcontainer.
 
-6. App Mod will try to install appcat eventually to make sure it's in the right place
+1. App Mod will try to install appcat eventually to make sure it's in the right place
     
     ![Install AppCAT](doc-media/3.ghcp-install-appcat.png)
 
-7. It will start the assessment after all prechecks and install have been completed.
+2. It will start the assessment after all prechecks and install have been completed.
 
     ![Run Assessment](doc-media/5.0.ghcp-run-assessment.png)
 
     > **NOTE**: You can click on the arrow dropdown next to **Running appmod-run-asessment* to view the params that are sent to the MCP server.
     ![MCP Details Input](doc-media/5.1ghcp-assessment-details-mcp-input.png)
-8. Wait for the assessment to be completed and the report to be generated.
+3. Wait for the assessment to be completed and the report to be generated.
 
     ![Assessment Report](doc-media/6.appmod-assessment-report.png)
 
-9. Review the **Summary** report. Take a look at the **Cloud Readiness** report under the **Issues** tab to view the proposed solutions for the issues identified in the summary report.
+4. Review the **Summary** report. Take a look at the **Cloud Readiness** report under the **Issues** tab to view the proposed solutions for the issues identified in the summary report.
 
 ### Migrate to Azure Database for PostgreSQL Flexible Server
 
